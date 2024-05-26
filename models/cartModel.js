@@ -23,11 +23,41 @@ const cartSchema = new mongoose.Schema(
   },
 );
 
-cartSchema.methods.addToExistingCart = async function (productId, quantity) {
-  const product = await Laptop.findById(productId);
- this.items = [...this.items, { productId, quantity }];
- this.totalPrice += quantity * product.price;
-}
+cartSchema.post(/^find/, async function (docs, next) {
+  if (Array.isArray(docs)) {
+    for (let doc of docs) {
+      await doc.populate('items.productId', 'price').execPopulate();
+
+      doc.totalPrice = doc.items.reduce((acc, item) => {
+        const product = item.productId;
+        const quantity = item.quantity;
+        return acc + product.price * quantity;
+      }, 0);
+
+      await doc.save();
+    }
+  } else {
+    await docs.populate('items.productId', 'price');
+
+    docs.totalPrice = docs.items.reduce((acc, item) => {
+      const product = item.productId;
+      const quantity = item.quantity;
+      return acc + product.price * quantity;
+    }, 0);
+
+    await docs.save();
+  }
+
+  next();
+});
+cartSchema.pre(/^find /, async function (req, res, next) {
+  this.totalPrice = this.items.reduce((acc, item) => {
+    const product = item.productId;
+    const quantity = item.quantity;
+    return acc + product.price * quantity;
+  })
+  next();
+});
 
 const Cart = mongoose.model('Cart', cartSchema);
 

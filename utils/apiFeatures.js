@@ -11,15 +11,29 @@ class APIFeatures {
     const excludedFields = ['page', 'sort', 'limit'];
     excludedFields.forEach((field) => delete queryObj[field]);
 
-    // Custom filtering logic (add more as needed)
+    // Custom filtering logic:
+
+    // Brand filtering (existing code)
     if (queryObj.brand) {
       queryObj.brand = { $regex: queryObj.brand, $options: 'i' }; // Case-insensitive search
     }
 
-    this.query = this.query.find(queryObj);
-    return this; // Allow method chaining
-  }
+    // Search query logic:
+    if (queryObj.search) {
+      const searchTerm = queryObj.search.toLowerCase();
+      const fieldsToSearch = ['name', 'description']; // Adjust as needed
+      let searchQuery = {}; // Replace with an empty object
 
+      fieldsToSearch.forEach((field) => {
+        searchQuery[field] = { $regex: searchTerm, $options: 'i' }; // Case-insensitive search
+      });
+
+      queryObj.$or = Object.values(searchQuery); // Combine search with other filters using $or
+    }
+
+    this.query = this.query.find(queryObj);
+    return this;
+  }
   // Sort data based on query parameters
   sort() {
     if (this.requestQuery.sort) {

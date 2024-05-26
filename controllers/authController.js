@@ -12,7 +12,7 @@ const signToken = (id) => {
   });
 };
 
-const createSendToken = (user, statusCode, res) => {
+const createSendToken = (user, statusCode, res, sendTokenInHeaders = false) => {
   const token = signToken(user._id);
   const cookieOptions = {
     expires: new Date(
@@ -25,6 +25,11 @@ const createSendToken = (user, statusCode, res) => {
   }
   res.cookie('jwt', token, cookieOptions);
   user.password = undefined;
+
+  if (sendTokenInHeaders) {
+    res.set('Authorization', `Bearer ${token}`);
+  }
+
   res.status(statusCode).json({
     status: 'success',
     token,
@@ -195,7 +200,19 @@ exports.resetPassword = catchAsync(async (req, res,next) => {
 
 
 exports.confirmMyEmail = catchAsync( async (req, res,next) => {
-  const tokenId = jwt.verify(req.cookies.jwt, process.env.JWT_SECRET).id;
+  let token;
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
+    token = req.headers.authorization.split(' ')[1];
+  } else if (req.cookies.jwt) {
+    token = req.cookies.jwt;
+  }
+  if (!token) {
+    return next(new CustomError(401, 'You are not logged in'));
+  }
+  const tokenId = jwt.verify(token, process.env.JWT_SECRET).id;
   const user = await User.findById(tokenId);
   if (!user) {
     return next(new CustomError(404, 'user not found'));
@@ -257,7 +274,7 @@ exports.restrictTo = (...roles) => {
 
 exports.logout = catchAsync(async (req,res,next) => {
   res.cookie('jwt', 'loggedout', {
-    expires: new Date(Date.now() + 10 * 1000),//10 seconds
+    expires: new Date(Date.now() + 2 * 1000),//2 seconds
     httpOnly: true
   });
   res.status(200).json({

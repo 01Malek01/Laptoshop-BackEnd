@@ -5,6 +5,7 @@ const APIFeatures = require('../utils/apiFeatures');
 exports.getAllLaptops = catchAsync(async (req, res, next) => {
   let query = Laptop.find();
 
+  //method chaining
   const features = new APIFeatures(query, req.query).filter().sort().paginate();
 
   const laptops = await features.query;
@@ -66,6 +67,23 @@ exports.deleteLaptop = catchAsync(async (req, res, next) => {
     status: 'success',
     data: null,
   });
+});
+exports.searchLaptops = catchAsync(async (req, res, next) => {
+  const query = req.query.q;
+  const results = await Laptop 
+    .find({
+      $or: [
+        { brand: { $regex: query, $options: 'i' } },
+        { model: { $regex: query, $options: 'i' } },
+      ],
+    });
+    if(results.length === 0){
+      return res.status(404).json({
+        status: 'fail',
+        message: 'No laptops found',
+      });
+    }
+  res.json(results);
 });
 
 // exports.getLaptopStats = catchAsync(async (req, res, next) => {
