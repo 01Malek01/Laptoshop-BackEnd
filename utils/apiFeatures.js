@@ -8,32 +8,19 @@ class APIFeatures {
   // Filter data based on query parameters
   filter() {
     const queryObj = { ...this.requestQuery }; // create a copy from the request query parameters from the url
-    const excludedFields = ['page', 'sort', 'limit'];
+    const excludedFields = ['page', 'sort', 'limit', 'search'];
     excludedFields.forEach((field) => delete queryObj[field]);
-
-    // Custom filtering logic:
 
     // Brand filtering (existing code)
     if (queryObj.brand) {
       queryObj.brand = { $regex: queryObj.brand, $options: 'i' }; // Case-insensitive search
     }
 
-    // Search query logic:
-    if (queryObj.search) {
-      const searchTerm = queryObj.search.toLowerCase();
-      const fieldsToSearch = ['name', 'description']; // Adjust as needed
-      let searchQuery = {}; // Replace with an empty object
-
-      fieldsToSearch.forEach((field) => {
-        searchQuery[field] = { $regex: searchTerm, $options: 'i' }; // Case-insensitive search
-      });
-
-      queryObj.$or = Object.values(searchQuery); // Combine search with other filters using $or
-    }
-
+    // Additional filters can be added here
     this.query = this.query.find(queryObj);
     return this;
   }
+
   // Sort data based on query parameters
   sort() {
     if (this.requestQuery.sort) {
@@ -45,11 +32,38 @@ class APIFeatures {
 
   // Paginate data
   paginate() {
-    const page = parseInt(this.requestQuery.page, 10) || 1;
-    const limit = parseInt(this.requestQuery.limit, 10) || 10;
+    const page = parseInt(this.requestQuery?.page, 10) || 1;
+    const limit = parseInt(this.requestQuery?.limit, 10) || 10;
     const skip = (page - 1) * limit;
 
+    if (
+      !this.query ||
+      typeof this.query.skip !== 'function' ||
+      typeof this.query.limit !== 'function'
+    ) {
+      throw new Error('Invalid query object');
+    }
+
     this.query = this.query.skip(skip).limit(limit);
+    return this;
+  }
+
+  // Search data based on query parameters
+  search() {
+    if (this.requestQuery.search) {
+      const searchTerm = this.requestQuery.search.toLowerCase();
+      const fieldsToSearch = ['brand', 'model']; // Adjust as needed
+      const searchQueries = fieldsToSearch.map((field) => ({
+        [field]: { $regex: searchTerm, $options: 'i' },
+        //will look like this :
+        //         [
+        //   { brand: { $regex: 'searchTerm', $options: 'i' } },
+        //   { model: { $regex: 'searchTerm', $options: 'i' } }
+        // ]
+      }));
+
+      this.query = this.query.find({ $or: searchQueries });
+    }
     return this;
   }
 }

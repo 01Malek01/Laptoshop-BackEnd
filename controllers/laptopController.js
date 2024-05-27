@@ -5,10 +5,11 @@ const APIFeatures = require('../utils/apiFeatures');
 exports.getAllLaptops = catchAsync(async (req, res, next) => {
   let query = Laptop.find();
 
-  //method chaining
-  const features = new APIFeatures(query, req.query).filter().sort().paginate();
 
-  const laptops = await features.query;
+  //method chaining
+  const features = new APIFeatures(query, req.query).filter().sort().paginate().search();
+
+  let laptops = await features.query;
 
   res.status(200).json({
     status: 'success',
@@ -69,21 +70,25 @@ exports.deleteLaptop = catchAsync(async (req, res, next) => {
   });
 });
 exports.searchLaptops = catchAsync(async (req, res, next) => {
-  const query = req.query.q;
-  const results = await Laptop 
-    .find({
-      $or: [
-        { brand: { $regex: query, $options: 'i' } },
-        { model: { $regex: query, $options: 'i' } },
-      ],
+  const query = req.query.q; //in the url ( ?q= )
+  const result = await Laptop.find({
+    $or: [
+      { brand: { $regex: query, $options: 'i' } },
+      { model: { $regex: query, $options: 'i' } },
+    ],
+  });
+  if (result.length === 0) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'No laptops found',
     });
-    if(results.length === 0){
-      return res.status(404).json({
-        status: 'fail',
-        message: 'No laptops found',
-      });
-    }
-  res.json(results);
+  }
+  res.status(200).json({
+    status: 'success',
+    data: {
+      result,
+    },
+  });
 });
 
 // exports.getLaptopStats = catchAsync(async (req, res, next) => {
