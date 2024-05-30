@@ -44,8 +44,7 @@ app.use(
 
 // CORS configuration
 const corsOptions = {
-  origin:
-    'https://laptoshop-front-k0zcamv93-maleks-projects-4df77c24.vercel.app', // Replace with your frontend URL
+  origin: 'https://laptoshop-front-end.vercel.app/', // Replace with your frontend URL
   credentials: true, // Allow cookies for authenticated requests
   methods: 'GET, POST, PUT, PATCH, DELETE', // Allowed HTTP methods
   allowedHeaders: ['Content-Type', 'Authorization'], // Allowed request headers
