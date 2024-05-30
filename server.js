@@ -11,7 +11,7 @@ const DB = process.env.DATABASE.replace(
 const localDB = process.env.LOCAL_DB;
 
 //for connecting to database
-mongoose.connect(localDB)
+mongoose.connect(DB)
 .then(() => {
   console.log('DB connection successful!');
 }).catch(err => {
