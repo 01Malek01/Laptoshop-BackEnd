@@ -39,7 +39,6 @@ exports.addToCart = catchAsync(async (req, res, next) => {
   }
 
   await cart.save();
-console.log("request received");
   res.status(200).json({
     status: 'Product added to cart!',
     data: cart,
@@ -47,25 +46,13 @@ console.log("request received");
 });
 
 exports.getCart = catchAsync(async (req, res, next) => {
-  const cart = await Cart.findOne({ userId: req.user._id }).populate({
-    path:"items.productId",
-    select:'brand price model image '
-  });
-  let productsPromises = cart.items?.map(async (item) => {
-    const product = await Laptop.findById(item.productId);
-    return product;
-  });
-  let products = await Promise.all(productsPromises).catch(err => {
-        return next(new CustomError(404, 'Your cart is Empty'));
-
-  });
+  const cart = await Cart.findOne({ userId: req.user._id }).populate('items.productId');  
   if (!cart) {
     return next(new CustomError(404, 'Your cart is Empty'));
   }
   res.status(200).json({
     status: 'success',
     data: cart,
-    products,
   });
 });
 
@@ -78,6 +65,8 @@ exports.clearCart = catchAsync(async (req, res, next) => {
 });
 
 
+
+
 exports.removeItemFromCart = catchAsync(async (req, res, next) => {
   const { id } = req.body;
   const cart = await Cart.findOneAndUpdate(
@@ -85,7 +74,15 @@ exports.removeItemFromCart = catchAsync(async (req, res, next) => {
     { $pull: { items: { productId: id } } },
     { new: true },
   );
-  
+
+  if (!cart) {
+    return next(new AppError('No cart found for this user.', 404));
+  }
+
+  // Recalculate total price
+  await cart.calculateTotalPrice();
+  await cart.save();
+
   res.status(200).json({
     status: 'success',
     data: cart,

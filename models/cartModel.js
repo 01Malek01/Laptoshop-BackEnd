@@ -23,41 +23,24 @@ const cartSchema = new mongoose.Schema(
   },
 );
 
-cartSchema.post(/^find/, async function (docs, next) {
-  if (Array.isArray(docs)) {
-    for (let doc of docs) {
-      await doc.populate('items.productId', 'price').execPopulate();
-
-      doc.totalPrice = doc.items.reduce((acc, item) => {
-        const product = item.productId;
-        const quantity = item.quantity;
-        return acc + product.price * quantity;
-      }, 0);
-
-      await doc.save();
-    }
-  } else {
-    await docs.populate('items.productId', 'price');
-
-    docs.totalPrice = docs.items.reduce((acc, item) => {
-      const product = item.productId;
-      const quantity = item.quantity;
-      return acc + product.price * quantity;
-    }, 0);
-
-    await docs.save();
-  }
-
-  next();
-});
-cartSchema.pre(/^find /, async function (req, res, next) {
+cartSchema.methods.calculateTotalPrice = async function () {
+  await this.populate('items.productId', 'price');
   this.totalPrice = this.items.reduce((acc, item) => {
     const product = item.productId;
     const quantity = item.quantity;
     return acc + product.price * quantity;
-  })
+  }, 0);
+};
+
+cartSchema.pre('save', async function (next) {
+  await this.calculateTotalPrice();
   next();
 });
+
+// cartSchema.pre(/^find/, async function (next) {
+//   await this.populate('items.productId', 'price');
+//   next();
+// });
 
 const Cart = mongoose.model('Cart', cartSchema);
 
