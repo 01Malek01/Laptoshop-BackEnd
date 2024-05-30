@@ -76,7 +76,9 @@ app.use(express.urlencoded({ extended: true, limit: '10kb' })); //middleware to 
 app.use(cookieParser()); //parses the data from cookies
 
 
-
+app.get('/api/v1', (req, res) => {
+  res.status(200).json({ message: 'Welcome to the API' });
+});
 
 //handle requests to these routes
 app.use('/api/v1/laptops', laptopRouter);
