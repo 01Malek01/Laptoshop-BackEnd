@@ -19,10 +19,10 @@ const createSendToken = (user, statusCode, res, sendTokenInHeaders = false) => {
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000,
     ),
     httpOnly: true,
+    secure: process.env.NODE_ENV === 'production', // Ensure cookies are secure in production
+    sameSite: 'None', // Allows cross-site requests
   };
-  if (process.env.NODE_ENV === 'production') {
-    cookieOptions.secure = true;
-  }
+
   res.cookie('jwt', token, cookieOptions);
   user.password = undefined;
 
@@ -38,6 +38,7 @@ const createSendToken = (user, statusCode, res, sendTokenInHeaders = false) => {
     },
   });
 };
+
 
 exports.signUp = catchAsync(async (req, res,next) => {
   
