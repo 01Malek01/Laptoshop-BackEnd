@@ -26,13 +26,26 @@ cloudinary.config({
 // Security middlewares
 
 // CORS configuration
+const allowedOrigins = [
+  'https://laptoshop-front-p4nftk8o6-maleks-projects-4df77c24.vercel.app',
+  'http://localhost:3000',
+];
+
 const corsOptions = {
-  origin:
-    'https://laptoshop-front-p4nftk8o6-maleks-projects-4df77c24.vercel.app', // Replace with your frontend URL
+  origin: (origin, callback) => {
+    if (allowedOrigins.includes(origin) || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true, // Allow cookies for authenticated requests
   methods: 'GET, POST, PUT, PATCH, DELETE', // Allowed HTTP methods
   allowedHeaders: ['Content-Type', 'Authorization'], // Allowed request headers
 };
+
+app.use(cors(corsOptions));
+
 app.use(cors(corsOptions));
 
 app.use(helmet());
