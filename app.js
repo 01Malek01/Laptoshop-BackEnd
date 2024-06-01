@@ -24,6 +24,16 @@ cloudinary.config({
 });
 
 // Security middlewares
+
+// CORS configuration
+const corsOptions = {
+  origin: 'https://laptoshop-front-lhj3wucog-maleks-projects-4df77c24.vercel.app', // Replace with your frontend URL
+  credentials: true, // Allow cookies for authenticated requests
+  methods: 'GET, POST, PUT, PATCH, DELETE', // Allowed HTTP methods
+  allowedHeaders: ['Content-Type', 'Authorization'], // Allowed request headers
+};
+app.use(cors(corsOptions));
+
 app.use(helmet());
 app.use(mongoSanitize());
 app.use(xss());
@@ -42,14 +52,6 @@ app.use(
   }),
 );
 
-// CORS configuration
-const corsOptions = {
-  origin: 'https://laptoshop-front-lhj3wucog-maleks-projects-4df77c24.vercel.app', // Replace with your frontend URL
-  credentials: true, // Allow cookies for authenticated requests
-  methods: 'GET, POST, PUT, PATCH, DELETE', // Allowed HTTP methods
-  allowedHeaders: ['Content-Type', 'Authorization'], // Allowed request headers
-};
-app.use(cors(corsOptions));
 
 // Other middlewares
 app.use(express.json({ limit: '10kb' })); // Limit data to 10kb

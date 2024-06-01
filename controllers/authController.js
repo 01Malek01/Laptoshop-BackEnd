@@ -60,19 +60,10 @@ exports.login = catchAsync(async (req, res,next) => {
 
     if (!user || !(await user.correctPassword(password, user.password))) {
       return next(new CustomError(401, 'Incorrect email or password'));
-      // res.status(401).json({
-      //   status: 'fail',
-      //   message: 'either email or password is incorrect',
-      // });
+     
     }
     createSendToken(user, 200, res);
-  // } catch (err) {
-  //   res.status(404).json({
-  //     status: 'fail',
-  //     message: 'either email or password is incorrect',
-  //   });
-  // }
-// }
+
   });
 
 // Protect routes (((middleware)))
