@@ -27,7 +27,8 @@ cloudinary.config({
 
 // CORS configuration
 const corsOptions = {
-  origin: 'https://laptoshop-front-lhj3wucog-maleks-projects-4df77c24.vercel.app', // Replace with your frontend URL
+  origin:
+    'https://laptoshop-front-p4nftk8o6-maleks-projects-4df77c24.vercel.app', // Replace with your frontend URL
   credentials: true, // Allow cookies for authenticated requests
   methods: 'GET, POST, PUT, PATCH, DELETE', // Allowed HTTP methods
   allowedHeaders: ['Content-Type', 'Authorization'], // Allowed request headers
