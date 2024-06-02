@@ -27,7 +27,7 @@ cloudinary.config({
 
 // CORS configuration
 const allowedOrigins = [
-  'https://laptoshop-front-p4nftk8o6-maleks-projects-4df77c24.vercel.app',
+  'https://laptoshop-front-4rjmqxwz8-maleks-projects-4df77c24.vercel.app',
   'http://localhost:3000',
 ];
 
