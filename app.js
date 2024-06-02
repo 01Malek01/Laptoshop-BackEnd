@@ -44,7 +44,6 @@ const corsOptions = {
   allowedHeaders: ['Content-Type', 'Authorization'], // Allowed request headers
 };
 
-app.use(cors(corsOptions));
 
 app.use(cors(corsOptions));
 
