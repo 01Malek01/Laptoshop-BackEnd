@@ -26,10 +26,10 @@ cloudinary.config({
 // Security middlewares
 
 // CORS configuration
-const allowedOrigins = [
-  'https://laptoshop-front-end.vercel.app/',
-  'http://localhost:3000',
-];
+     const allowedOrigins = [
+       'https://*.laptoshop-front-end.vercel.app', // Allow any subdomain
+       'http://localhost:3000',
+     ];
 
 const corsOptions = {
   origin: (origin, callback) => {
