@@ -28,8 +28,9 @@ cloudinary.config({
 // CORS configuration
     const allowedOrigins = [
   'https://laptoshop-front-5saul04hf-maleks-projects-4df77c24.vercel.app', // New origin
-  'https://laptoshop-front-end.vercel.app', 
   'http://localhost:3000',
+  'https://laptoshop.vercel.app/'
+      
 ];
 
 const corsOptions = {
