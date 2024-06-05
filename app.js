@@ -25,6 +25,26 @@ cloudinary.config({
 
 // Security middlewares
 
+
+
+app.use(helmet());
+app.use(mongoSanitize());
+app.use(xss());
+app.use(
+  hpp({
+    checkBody: false,
+    whitelist: [],
+  }),
+);
+app.use(
+  expressLimiter({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 500, // Limit each IP to 500 requests per `window`
+    standardHeaders: true,
+    legacyHeaders: false,
+  }),
+);
+
 // CORS configuration
      const allowedOrigins = [
        'https://*.laptoshop-front-end.vercel.app', // Allow any subdomain
@@ -46,26 +66,6 @@ const corsOptions = {
 
 
 app.use(cors(corsOptions));
-
-app.use(helmet());
-app.use(mongoSanitize());
-app.use(xss());
-app.use(
-  hpp({
-    checkBody: false,
-    whitelist: [],
-  }),
-);
-app.use(
-  expressLimiter({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 500, // Limit each IP to 500 requests per `window`
-    standardHeaders: true,
-    legacyHeaders: false,
-  }),
-);
-
-
 // Other middlewares
 app.use(express.json({ limit: '10kb' })); // Limit data to 10kb
 app.use(express.urlencoded({ extended: true, limit: '10kb' })); // Parse URL encoded data
