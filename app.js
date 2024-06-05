@@ -47,7 +47,7 @@ app.use(
 
 // CORS configuration
      const allowedOrigins = [
-       'https://*.laptoshop-front-end.vercel.app', // Allow any subdomain
+       'https://laptoshop-front-5saul04hf-maleks-projects-4df77c24.vercel.app', // Allow any subdomain
        'http://localhost:3000',
      ];
 
